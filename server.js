@@ -63,6 +63,8 @@ app.use('/static', express.static(__dirname + '/public'));
 /register --> POST = user
 /profile/:userId --> GET = user
 /products --> GET = menu
+/sales
+/featured
 (END)
 */
 
@@ -162,6 +164,30 @@ app.get('/products', (req, res) => {
     .from('products')
     .then(products => res.json(products))
     .catch(err => res.status(400).json('error getting a list of products'));
+});
+
+app.get('/sales', (req, res) => {
+  db
+    .select(
+      'products.id', 
+      'products.item', 
+      'products.category', 
+      'products.description',
+      'products.packaging',
+      'products.image',
+      'sales.price'
+      )
+    .from('products', 'sales')
+    .innerJoin('sales', 'products.id', 'sales.item_id')
+    .then(products => res.json(products))
+    .catch(err => res.status(400).json('error getting a list of products for sale'));
+});
+
+app.get('/featured', (req, res) => {
+  db
+    .from('products').innerJoin('featured', 'products.id', 'featured.item_id')
+    .then(products => res.json(products))
+    .catch(err => res.status(400).json('error getting a list of featured products'));
 });
 
 app.listen(3000, () => {
