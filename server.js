@@ -62,9 +62,10 @@ app.use('/static', express.static(__dirname + '/public'));
 /signin --> POST = success/fail
 /register --> POST = user
 /profile/:userId --> GET = user
-/products --> GET = menu
-/sales
-/featured
+/products --> GET = products array
+/products/:id --> GET = product by id
+/sales --> GET = products for sale array
+/featured --> GET = featured products array
 (END)
 */
 
@@ -164,6 +165,22 @@ app.get('/products', (req, res) => {
     .from('products')
     .then(products => res.json(products))
     .catch(err => res.status(400).json('error getting a list of products'));
+});
+
+app.get('/products/:id', (req, res) => {
+  const { id } = req.params;
+  db
+    .select('*')
+    .from('products')
+    .where({ id: id })
+    .then(products => {
+      if (products.length) {
+        res.json(products[0]);
+      } else {
+        res.status(404).json('no such product');
+      }
+    })
+    .catch(err => res.status(400).json('error getting a product'));
 });
 
 app.get('/sales', (req, res) => {
